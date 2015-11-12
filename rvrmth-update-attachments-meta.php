@@ -24,10 +24,11 @@ class rvrmth_update_attachments_Thread //extends Thread
 	{
 		$update_count = 0;
 		$offset = 0;
+		$posts_per_page = 10;
 		$has_more_posts = true;
 		while ($has_more_posts) {
 			$posts_array = get_posts(array(
-				'posts_per_page' => 20,
+				'posts_per_page' => $posts_per_page,
 				'offset' => $offset,
 				'post_type' => 'attachment',
 				'meta_key' => '_wp_attachment_metadata',
@@ -44,7 +45,7 @@ class rvrmth_update_attachments_Thread //extends Thread
 					$update_count++;
 				}
 			}
-			$offset += 20;
+			$offset += $posts_per_page;
 		}
 		return $update_count;
 	}
