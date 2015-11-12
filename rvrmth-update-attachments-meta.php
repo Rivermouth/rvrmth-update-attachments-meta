@@ -39,7 +39,7 @@ function rvrmth_update_attachments_meta_js() { ?>
 					wrapper.append("DONE!");
 				}
 				else {
-					wrapper.append("Updated meta data for " + response + " posts");
+					wrapper.append("Updated meta data for " + response + " posts<br>");
 					setTimeout(function() {
 						doUpdate(wrapper, pageSize, offset + pageSize);
 					}, 300);
