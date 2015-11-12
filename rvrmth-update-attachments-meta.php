@@ -21,14 +21,16 @@ function rvrmth_update_attachments_meta_js() { ?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
 		var totalUpdatedCount = 0;
+		var statusTest = "";
 		function doUpdate(wrapper, pageSize, offset) {
 			if (!wrapper) {
 				return;
 			}
 			
-			wrapper.html("<b>Updating</b>...<br>" + 
-						 "<i>Sit tight, we will tell you as soon as whole updating process is done.</i>" + 
-						 "<i><small>But if you close this page, no harm will be done - update process just will be stopped.</small></i>");
+			wrapper.html("<p><b>Updating</b>...<br>" + 
+						 "<i>Sit tight, we will tell you as soon as whole updating process is done.</i><br>" + 
+						 "<i><small>But if you close this page, no harm will be done - update process just will be stopped.</small></i></p>" + 
+						 "<p>" + statusTest + "</p>");
 			
 			var data = {
 				'action': 'rvrmth_update_attachments_meta',
@@ -43,7 +45,7 @@ function rvrmth_update_attachments_meta_js() { ?>
 					return;
 				}
 				totalUpdatedCount += parseInt(response);
-				wrapper.append("Latest batch: " + response + ", total update count: " + totalUpdatedCount);
+				statusTest = "Latest batch: " + response + ", total update count: " + totalUpdatedCount;
 				setTimeout(function() {
 					doUpdate(wrapper, pageSize, offset + pageSize);
 				}, 300);
