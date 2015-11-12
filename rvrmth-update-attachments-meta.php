@@ -20,12 +20,15 @@ add_action( 'wp_ajax_rvrmth_update_attachments_meta', 'rvrmth_update_attachments
 function rvrmth_update_attachments_meta_js() { ?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
+		var totalUpdatedCount = 0;
 		function doUpdate(wrapper, pageSize, offset) {
 			if (!wrapper) {
 				return;
 			}
 			
-			wrapper.append("Updating...<br>");
+			wrapper.html("<b>Updating</b>...<br>" + 
+						 "<i>Sit tight, we will tell you as soon as whole updating process is done.</i>" + 
+						 "<i><small>But if you close this page, no harm will be done - update process just will be stopped.</small></i>");
 			
 			var data = {
 				'action': 'rvrmth_update_attachments_meta',
@@ -37,13 +40,13 @@ function rvrmth_update_attachments_meta_js() { ?>
 			$.post(ajaxurl, data, function(response) {
 				if (response == 0) {
 					wrapper.append("DONE!");
+					return;
 				}
-				else {
-					wrapper.append("Updated meta data for " + response + " posts<br>");
-					setTimeout(function() {
-						doUpdate(wrapper, pageSize, offset + pageSize);
-					}, 300);
-				}
+				totalUpdatedCount += parseInt(response);
+				wrapper.append("Latest batch: " + response + ", total update count: " + totalUpdatedCount);
+				setTimeout(function() {
+					doUpdate(wrapper, pageSize, offset + pageSize);
+				}, 300);
 			});
 		}
 		doUpdate($("#rvrmth_update_attachments_meta_checkbox_field_0"), 10, 0);
