@@ -14,24 +14,46 @@ Text Domain: rvrmth-update-attachments-meta
 
 include( ABSPATH . 'wp-admin/includes/image.php' );
 
+class rvrmth_update_attachments_Thread //extends Thread 
+{
+	public function __construct() 
+	{
+	}
+
+	public function run() 
+	{
+		$update_count = 0;
+		$offset = 0;
+		$has_more_posts = true;
+		while ($has_more_posts) {
+			$posts_array = get_posts(array(
+				'posts_per_page' => 20,
+				'offset' => $offset,
+				'post_type' => 'attachment',
+				'meta_key' => '_wp_attachment_metadata',
+				'meta_compare' => 'NOT EXISTS'
+			));
+			if (count($posts_array) == 0) {
+				$has_more_posts = false;
+				continue;
+			}
+			foreach ($posts_array as $post_object) {
+				$meta_data = wp_generate_attachment_metadata($post_object->ID, WP_CONTENT_DIR . '/uploads/' . get_post_meta($post_object->ID, '_wp_attached_file', true));
+				$result = wp_update_attachment_metadata($post_object->ID, $meta_data);
+				if ($result) {
+					$update_count++;
+				}
+			}
+			$offset += 20;
+		}
+		return $update_count;
+	}
+}
+
 function rvrmth_update_attachments_meta_do_update() 
 {
-	$update_count = 0;
-	$posts_array = get_posts(array(
-		'posts_per_page' => -1,
-		'offset' => 0,
-		'post_type' => 'attachment',
-		'meta_key' => '_wp_attachment_metadata',
-		'meta_compare' => 'NOT EXISTS'
-	));
-	foreach ($posts_array as $post_object) {
-		$meta_data = wp_generate_attachment_metadata($post_object->ID, WP_CONTENT_DIR . '/uploads/' . get_post_meta($post_object->ID, '_wp_attached_file', true));
-		$result = wp_update_attachment_metadata($post_object->ID, $meta_data);
-		if ($result) {
-			$update_count++;
-		}
-	}
-	return $update_count;
+	$worker = new rvrmth_update_attachments_Thread();
+	return $worker->run();
 }
 
 
