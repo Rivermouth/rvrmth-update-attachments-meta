@@ -14,7 +14,7 @@ Text Domain: rvrmth-update-attachments-meta
 
 include( ABSPATH . 'wp-admin/includes/image.php' );
 
-class rvrmth_update_attachments_Thread //extends Thread 
+class rvrmth_update_attachments_Thread extends Thread 
 {
 	public function __construct() 
 	{
