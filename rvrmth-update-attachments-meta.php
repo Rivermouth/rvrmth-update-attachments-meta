@@ -48,7 +48,7 @@ function rvrmth_update_attachments_meta_js() { ?>
 				totalUpdatedCount += parseInt(response);
 				statusTest = "Latest batch: " + response + "<br>Total update count: " + totalUpdatedCount;
 				setTimeout(function() {
-					doUpdate(wrapper, pageSize, offset + pageSize);
+					doUpdate(wrapper, pageSize, offset + pageSize, regenerateAll);
 				}, 300);
 			});
 		}
@@ -62,7 +62,7 @@ function rvrmth_update_attachments_meta_js() { ?>
 function rvrmth_update_attachments_meta_js_callback() {
 	$offset = intval($_POST['offset']);
 	$posts_per_page = intval($_POST['pageSize']);
-	$regenerate_all = boolval($_POST['regenerateAll']);
+	$regenerate_all = $_POST['regenerateAll'] == 'true' ? true : false;
 	
 	$options = array(
 		'posts_per_page' => $posts_per_page,
