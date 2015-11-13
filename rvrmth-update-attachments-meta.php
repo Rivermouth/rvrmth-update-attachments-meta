@@ -22,7 +22,7 @@ function rvrmth_update_attachments_meta_js() { ?>
 	jQuery(document).ready(function($) {
 		var totalUpdatedCount = 0;
 		var statusTest = "";
-		function doUpdate(wrapper, pageSize, offset) {
+		function doUpdate(wrapper, pageSize, offset, regenerateAll) {
 			if (!wrapper) {
 				return;
 			}
@@ -35,7 +35,8 @@ function rvrmth_update_attachments_meta_js() { ?>
 			var data = {
 				'action': 'rvrmth_update_attachments_meta',
 				'pageSize': pageSize,
-				'offset': offset
+				'offset': offset, 
+				'regenerateAll': regenerateAll ? true : false
 			};
 
 			// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
@@ -45,13 +46,14 @@ function rvrmth_update_attachments_meta_js() { ?>
 					return;
 				}
 				totalUpdatedCount += parseInt(response);
-				statusTest = "Latest batch: " + response + ", total update count: " + totalUpdatedCount;
+				statusTest = "Latest batch: " + response + "<br>Total update count: " + totalUpdatedCount;
 				setTimeout(function() {
 					doUpdate(wrapper, pageSize, offset + pageSize);
 				}, 300);
 			});
 		}
-		doUpdate($("#rvrmth_update_attachments_meta_checkbox_field_0"), 10, 0);
+		doUpdate($("#rvrmth_update_attachments_meta_checkbox_field_0"), 15, 0);
+		doUpdate($("#rvrmth_update_attachments_meta_checkbox_field_1"), 15, 0, true);
 	});
 	</script> <?php
 }
@@ -60,15 +62,20 @@ function rvrmth_update_attachments_meta_js() { ?>
 function rvrmth_update_attachments_meta_js_callback() {
 	$offset = intval($_POST['offset']);
 	$posts_per_page = intval($_POST['pageSize']);
+	$regenerate_all = boolval($_POST['regenerateAll']);
 	
-	$update_count = 0;
-	$posts_array = get_posts(array(
+	$options = array(
 		'posts_per_page' => $posts_per_page,
 		'offset' => $offset,
 		'post_type' => 'attachment',
-		'meta_key' => '_wp_attachment_metadata',
-		'meta_compare' => 'NOT EXISTS'
-	));
+	);
+	if (!$regenerate_all) {
+		$options['meta_key'] = '_wp_attachment_metadata';
+		$options['meta_compare'] = 'NOT EXISTS';
+	}
+	
+	$update_count = 0;
+	$posts_array = get_posts($options);
 	foreach ($posts_array as $post_object) {
 		$meta_data = wp_generate_attachment_metadata($post_object->ID, WP_CONTENT_DIR . '/uploads/' . get_post_meta($post_object->ID, '_wp_attached_file', true));
 		$result = wp_update_attachment_metadata($post_object->ID, $meta_data);
@@ -105,7 +112,16 @@ function rvrmth_update_attachments_meta_settings_init()
 		'rvrmth_update_attachments_meta_section' 
 	);
 
+	add_settings_field( 
+		'rvrmth_update_attachments_meta_checkbox_field_1', 
+		__( 'Regenerate media meta data', 'rvrmth-update-attachments-meta' ), 
+		'rvrmth_update_attachments_meta_checkbox_field_1_render', 
+		'media', 
+		'rvrmth_update_attachments_meta_section' 
+	);
+
 	register_setting( 'media', 'rvrmth_update_attachments_meta_checkbox_field_0' );
+	register_setting( 'media', 'rvrmth_update_attachments_meta_checkbox_field_1' );
 }
 
 function rvrmth_update_attachments_meta_checkbox_field_0_render() 
@@ -117,6 +133,19 @@ function rvrmth_update_attachments_meta_checkbox_field_0_render()
 	}
 	?>
 	<input type='checkbox' name='rvrmth_update_attachments_meta_checkbox_field_0' <?php echo checked(1, get_option( 'rvrmth_update_attachments_meta_checkbox_field_0' ), false); ?> value='1'>
+	<?php
+
+}
+
+function rvrmth_update_attachments_meta_checkbox_field_1_render() 
+{ 
+	$update_requested = get_option( 'rvrmth_update_attachments_meta_checkbox_field_1' );
+	if ($update_requested) {
+		update_option( 'rvrmth_update_attachments_meta_checkbox_field_1', false );
+		echo '<div id="rvrmth_update_attachments_meta_checkbox_field_1"></div>';
+	}
+	?>
+	<input type='checkbox' name='rvrmth_update_attachments_meta_checkbox_field_1' <?php echo checked(1, get_option( 'rvrmth_update_attachments_meta_checkbox_field_1' ), false); ?> value='1'>
 	<?php
 
 }
