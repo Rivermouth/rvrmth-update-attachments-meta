@@ -12,7 +12,7 @@ Domain Path: /languages
 Text Domain: rvrmth-update-attachments-meta
 */
 
-include( ABSPATH . 'wp-admin/includes/image.php' );
+include_once( ABSPATH . 'wp-admin/includes/image.php' );
 
 add_action( 'admin_footer', 'rvrmth_update_attachments_meta_js' ); // Write our JS below here
 add_action( 'wp_ajax_rvrmth_update_attachments_meta', 'rvrmth_update_attachments_meta_js_callback' );
