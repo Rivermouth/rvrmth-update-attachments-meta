@@ -3,7 +3,7 @@
 Plugin Name: Update attachments meta data
 Plugin URI:  http://URI_Of_Page_Describing_Plugin_and_Updates
 Description: Update attachments meta data where meta data is not present
-Version:     0.1
+Version:     0.2
 Author:      Rivermouth Ltd
 Author URI:  http://rivermouth.fi
 License:     GPL2
